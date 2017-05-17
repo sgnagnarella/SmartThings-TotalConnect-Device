@@ -149,6 +149,29 @@ def armAway() {
 	logout(token)
 }
 
+def armAwayMax() {	/*Acutally instant as I couldnt find the code for Max yet*/	   
+	def token = login(token)
+	def locationId = settings.locationId
+	def deviceId = settings.deviceId			
+	def paramsArm = [
+		uri: "https://rs.alarmnet.com/TC21API/TC2.asmx/ArmSecuritySystem",
+		body: [SessionID: token, LocationID: locationId, DeviceID: deviceId, ArmType: 3, UserCode: '-1']
+	]
+	httpPost(paramsArm) // Arming Function in away mode
+	def metaData = panelMetaData(token, locationId) // Get AlarmCode
+	if (metaData.alarmCode == 10201) {
+		log.debug "Status is: Already Armed Away"
+		sendEvent(name: "status", value: "Armed Away", displayed: "true", description: "Refresh: Alarm is Armed Away") 
+	} else if (metaData.alarmCode == 10203) {
+		log.debug "Status is: Armed Stay - Please Disarm First"
+		sendEvent(name: "status", value: "Armed Stay", displayed: "true", description: "Refresh: Alarm is Armed Stay") 
+    } else {
+		log.debug "Status is: Arming"
+        httpPost(paramsArm) // Arming Function in away mode
+    }
+	logout(token)
+}
+
 def armStay() {		   
 	def token = login(token)
 	def locationId = settings.locationId
