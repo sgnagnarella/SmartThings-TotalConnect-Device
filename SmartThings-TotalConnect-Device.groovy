@@ -38,6 +38,7 @@ metadata {
 	capability "Lock"
 	capability "Refresh"
 	capability "Switch"
+	Capability "DoorControl"
 	attribute "status", "string"
 }
 
@@ -51,8 +52,9 @@ tiles {
 			state("Armed Stay", label:'${name}', action:"switch.off", icon:"st.Home.home4", backgroundColor:"#79b821", nextState:"Disarmed")
 			state("Disarmed", label:'${name}', action:"lock.lock", icon:"st.Home.home2", backgroundColor:"#a8a8a8", nextState:"Armed Away")
 			state("Armed Away", label:'${name}', action:"switch.off", icon:"st.Home.home3", backgroundColor:"#79b821", nextState:"Disarmed")
-            state("Arming", label:'${name}', icon:"st.Home.home4", backgroundColor:"#ffa81e")
+            		state("Arming", label:'${name}', icon:"st.Home.home4", backgroundColor:"#ffa81e")
 			state("Disarming", label:'${name}', icon:"st.Home.home2", backgroundColor:"#ffa81e")
+			state("Armed Max", label:'${name}', action:"switch.off", icon:"st.Home.home3", backgroundColor:"#e12116", nextState:"Disarmed"
 		}
 		standardTile("statusstay", "device.status", inactiveLabel: false, decoration: "flat") {
 			state "default", label:'Arm Stay', action:"switch.on", icon:"st.Home.home4"
@@ -62,6 +64,9 @@ tiles {
 		}
 		standardTile("statusdisarm", "device.status", inactiveLabel: false, decoration: "flat") {
 			state "default", label:'Disarm', action:"switch.off", icon:"st.Home.home2"
+		}
+		standardTile("statusarmmax", "device.status", inactiveLabel: false, decoration: "flat") {
+			state "default", label:'Arm Max', action:"doorControl.close", icon:"st.Home.home3"
 		}
 		standardTile("refresh", "device.status", inactiveLabel: false, decoration: "flat") {
 			state "default", label:'', action:"refresh.refresh", icon:"st.secondary.refresh"
@@ -204,7 +209,9 @@ def refresh() {
 	} else if (metaData.alarmCode == 10201) {
 		log.debug "Status is: Armed Away"
 		sendEvent(name: "status", value: "Armed Away", displayed: "true", description: "Refresh: Alarm is Armed Away")
-	}
+	} else if (metaData.alarmCode == 10205) {
+		log.debug "Status is: Armed Max"
+		sendEvent(name: "status", value: "Armed Max", displayed: "true", description: "Refresh: Alarm is Armed Max") 
 	logout(token)
 	sendEvent(name: "refresh", value: "true", displayed: "true", description: "Refresh Successful") 
 }
